@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.OData;
+using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Project_OData.Data;
 using Project_OData.Models;
@@ -9,12 +10,6 @@ namespace Project_OData
     {
         public static IServiceCollection AddWebAPIService(this IServiceCollection services)
         {
-            var modelBuilder = new ODataConventionModelBuilder();
-            modelBuilder.EntitySet<Product>("Product");
-            modelBuilder.EntityType<Inventory>();
-            modelBuilder.EntityType<SubCategory>();
-            modelBuilder.EntityType<Category>();
-
             services.AddControllers().AddOData(options =>
                     options.Select()
                         .Filter()
@@ -22,18 +17,26 @@ namespace Project_OData
                         .Expand()
                         .Count()
                         .SetMaxTop(null)
-                        .AddRouteComponents("odata", modelBuilder.GetEdmModel()));
+                        .AddRouteComponents("odata", GetEdmModel()));
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             return services;
         }
-
 
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>();
 
             return services;
+        }
+
+        public static IEdmModel GetEdmModel()
+        {
+            var modelBuilder = new ODataConventionModelBuilder();
+            modelBuilder.EntitySet<Product>("Product");
+            modelBuilder.EntityType<SubCategory>();
+
+            return modelBuilder.GetEdmModel();
         }
     }
 }
