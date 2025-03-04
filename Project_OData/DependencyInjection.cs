@@ -2,6 +2,7 @@
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Project_OData.Data;
+using Project_OData.DTOs;
 using Project_OData.Models;
 
 namespace Project_OData
@@ -34,6 +35,7 @@ namespace Project_OData
         {
             var modelBuilder = new ODataConventionModelBuilder();
             modelBuilder.EntitySet<Product>("Product");
+            modelBuilder.EntityType<CreateUpdateProductDTO>();
             modelBuilder.EntityType<SubCategory>();
 
             return modelBuilder.GetEdmModel();

@@ -9,8 +9,10 @@ namespace Project_OData.Models
 
         public string? ProductName { get; set; }
 
+        public int SubCategoryId { get; set; }
+
         public virtual SubCategory? SubCategory { get; set; }
 
         public virtual ICollection<Inventory> Inventories { get; set; } = [];
-    }                                                                    
+    }
 }

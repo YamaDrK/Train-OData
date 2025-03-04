@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.EntityFrameworkCore;
 using Project_OData.Data;
+using Project_OData.DTOs;
+using Project_OData.Models;
 
 namespace Project_OData.Controllers
 {
@@ -37,6 +41,41 @@ namespace Project_OData.Controllers
         public IActionResult Get([FromRoute] int key)
         {
             return Ok(_dbContext.Products.FirstOrDefault(p => p.Id == key));
+        }
+
+        public async Task<IActionResult> Post(CreateUpdateProductDTO productDto)
+        {
+            var newProduct = new Product { ProductName = productDto.ProductName, SubCategoryId = productDto.SubCategoryId };
+            await _dbContext.Products.AddAsync(newProduct);
+            await _dbContext.SaveChangesAsync();
+            return Created(newProduct);
+        }
+
+        public async Task<IActionResult> Patch([FromRoute] int key, [FromBody] Delta<Product> product)
+        {
+            var getProduct = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == key);
+            if (getProduct == null)
+            {
+                return NotFound("Product not found");
+            }
+
+            product.Patch(getProduct);
+
+            await _dbContext.SaveChangesAsync();
+            return Updated(product);
+        }
+
+        public async Task<IActionResult> Delete([FromRoute] int key)
+        {
+            var getProduct = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == key);
+            if (getProduct == null)
+            {
+                return NotFound("Product not found");
+            }
+
+            _dbContext.Products.Remove(getProduct);
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
